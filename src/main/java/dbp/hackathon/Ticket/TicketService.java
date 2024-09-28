@@ -38,7 +38,7 @@ public class TicketService {
         ticket.setCantidad(cantidad);
         ticket.setEstado(Estado.VENDIDO);
         ticket.setFechaCompra(LocalDateTime.now());
-        ticket.setQr("http(s)://api.qrserver.com/v1/create-qr-code/?data="+estudianteId+"&size=100x100");
+        ticket.setQr("http://api.qrserver.com/v1/create-qr-code/?data="+estudianteId+"&size=100x100");
         applicationEventPublisher.publishEvent(new HelloEmailEvent(estudiante.getEmail(), estudiante.getName(), funcion.getNombre(), funcion.getFecha(), ticket.getCantidad(), ticket.getQr()));
         return ticketRepository.save(ticket);
     }
