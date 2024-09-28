@@ -1,10 +1,12 @@
 package dbp.hackathon;
 
-import java.time.LocalDateTime;
+import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+@Component
 public class EmailTemplate {
 
-    public String generarCorreo(String nombre, String nombrePelicula, LocalDateTime fechaFuncion, int cantidadEntradas, double precioTotal, String qr) {
+    public String generarCorreo(String nombre, String nombrePelicula, LocalDateTime fechaFuncion, int cantidadEntradas, String qr) {
         String plantilla = """
             <!DOCTYPE html>
             <html>
@@ -18,7 +20,6 @@ public class EmailTemplate {
                     <li>Nombre de la película: {{nombrePelicula}}</li>
                     <li>Fecha de la función: {{fechaFuncion}}</li>
                     <li>Cantidad de entradas: {{cantidadEntradas}}</li>
-                    <li>Precio total: {{precioTotal}}</li>
                     <li>Código QR: <img src="{{qr}}"/></li>
                 </ul>
                 <p>No olvides llevar tu código QR impreso o en tu dispositivo móvil para poder ingresar a la función.</p>
@@ -31,7 +32,6 @@ public class EmailTemplate {
         plantilla = plantilla.replace("{{nombrePelicula}}", nombrePelicula);
         plantilla = plantilla.replace("{{fechaFuncion}}", fechaFuncion.toString());
         plantilla = plantilla.replace("{{cantidadEntradas}}", String.valueOf(cantidadEntradas));
-        plantilla = plantilla.replace("{{precioTotal}}", String.valueOf(precioTotal));
         plantilla = plantilla.replace("{{qr}}", qr);
 
         return plantilla;
