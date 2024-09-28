@@ -4,7 +4,9 @@ import dbp.hackathon.Estudiante.Estudiante;
 import dbp.hackathon.Estudiante.EstudianteRepository;
 import dbp.hackathon.Funcion.Funcion;
 import dbp.hackathon.Funcion.FuncionRepository;
+import dbp.hackathon.HelloEmailEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
@@ -19,6 +21,11 @@ public class TicketService {
 
     @Autowired
     private FuncionRepository funcionRepository;
+
+    @Autowired//email
+
+    private ApplicationEventPublisher applicationEventPublisher;
+
 
     public Ticket createTicket(Long estudianteId, Long funcionId, Integer cantidad) {
         Estudiante estudiante = estudianteRepository.findById(estudianteId).orElse(null);
@@ -60,6 +67,23 @@ public class TicketService {
             throw new IllegalStateException("Ticket not found!");
         }
         ticket.setEstado(Estado.CANJEADO);
+        ticketRepository.save(ticket);
+    }
+
+    //para el correo
+    public void sendTicketEmail(String email) {
+
+        applicationEventPublisher.publishEvent(new HelloEmailEvent(email));
+    }
+
+    //  QR's
+    // Buscar ticket por el código QR
+    public Ticket findByQrCode(String qrCode) {
+        return ticketRepository.findByCodigoQR(qrCode);
+    }
+
+    // Actualizar ticket en la base de datos
+    public void updateTicket(Ticket ticket) {
         ticketRepository.save(ticket);
     }
 

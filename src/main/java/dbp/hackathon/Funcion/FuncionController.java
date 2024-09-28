@@ -15,6 +15,7 @@ public class FuncionController {
     @PostMapping
     public ResponseEntity<Funcion> saveFuncion(@RequestBody Funcion funcion) {
         return ResponseEntity.ok(funcionService.saveFuncion(funcion));
+
     }
 
     @GetMapping("/{id}")

@@ -2,6 +2,8 @@ package dbp.hackathon.Ticket;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -10,6 +12,43 @@ public class TicketController {
 
     @Autowired
     private TicketService ticketService;
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+
+    //endpoint que valida la autenticidad del ticket escaneando el codigo QR
+    @PostMapping("/validate")
+    public ResponseEntity<String> validateTicket(@RequestParam String qrCodeData) {
+        // Buscar el ticket por el código QR utilizando el TicketService
+        Ticket ticket = ticketService.findByQrCode(qrCodeData);
+        if (ticket == null) {
+            return ResponseEntity.status(404).body("Ticket no encontrado o inválido.");
+        }
+
+        // Verificar si el ticket ya fue canjeado
+        if (ticket.getEstado() == Estado.CANJEADO) {
+            return ResponseEntity.status(400).body("El ticket ya fue canjeado.");
+        }
+
+        // Cambiar estado a CANJEADO usando el service
+        ticket.setEstado(Estado.CANJEADO);
+        ticketService.updateTicket(ticket);
+
+        // Enviar correo de confirmación al usuario
+        enviarCorreoConfirmacion(ticket.getEstudiante().getEmail(), ticket);
+
+        return ResponseEntity.ok("Ticket validado y canjeado con éxito.");
+    }
+
+    private void enviarCorreoConfirmacion(String email, Ticket ticket) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Confirmación de Ticket Canjeado");
+        message.setText("Su ticket con código QR " + ticket.getQr() + " ha sido canjeado exitosamente.");
+        mailSender.send(message);
+
+    }
 
     @PostMapping
     public ResponseEntity<Ticket> createTicket(@RequestBody TicketRequest request) {
