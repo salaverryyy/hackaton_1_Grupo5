@@ -4,7 +4,9 @@ import dbp.hackathon.Estudiante.Estudiante;
 import dbp.hackathon.Estudiante.EstudianteRepository;
 import dbp.hackathon.Funcion.Funcion;
 import dbp.hackathon.Funcion.FuncionRepository;
+import dbp.hackathon.HelloEmailEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
@@ -20,6 +22,9 @@ public class TicketService {
     @Autowired
     private FuncionRepository funcionRepository;
 
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+
     public Ticket createTicket(Long estudianteId, Long funcionId, Integer cantidad) {
         Estudiante estudiante = estudianteRepository.findById(estudianteId).orElse(null);
         Funcion funcion = funcionRepository.findById(funcionId).orElse(null);
@@ -33,10 +38,11 @@ public class TicketService {
         ticket.setCantidad(cantidad);
         ticket.setEstado(Estado.VENDIDO);
         ticket.setFechaCompra(LocalDateTime.now());
-        ticket.setQr("GENERATED-QR-CODE");
-
+        ticket.setQr("http(s)://api.qrserver.com/v1/create-qr-code/?data="+estudianteId+"&size=100x100");
+        applicationEventPublisher.publishEvent(new HelloEmailEvent(estudiante.getEmail()));
         return ticketRepository.save(ticket);
     }
+
 
     public Ticket findById(Long id) {
         return ticketRepository.findById(id).orElse(null);
