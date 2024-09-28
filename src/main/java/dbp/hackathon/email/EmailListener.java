@@ -34,6 +34,6 @@ public class EmailListener {
         String text = emailTemplate.generarCorreo(nombre, nombrePelicula, fechaFuncion, cantidadEntradas, qr);
 
         // Enviar el correo
-        emailService.sendSimpleMessage(to, subject, text);
+        emailService.sendMessage(to, subject, text);
     }
 }
